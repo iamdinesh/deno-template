@@ -1,7 +1,11 @@
+type Opts = {
+  throwOnFail: boolean;
+};
+
 const getExecProcess = (
-  cmd,
-  runOpts = {},
-) => {
+  cmd: string,
+  runOpts: Partial<Deno.RunOptions> = {},
+): Deno.Process => {
   const proc = Deno.run({
     cmd: ["sh", "-c", `${cmd}`],
     ...runOpts,
@@ -10,8 +14,8 @@ const getExecProcess = (
 };
 
 const checkAndCloseProcess = async (
-  proc,
-  opts = {},
+  proc: Deno.Process,
+  opts: Partial<Opts> = {},
 ) => {
   const finalOpts = { throwOnFail: true, ...opts };
   const stat = await proc.status();
@@ -21,10 +25,11 @@ const checkAndCloseProcess = async (
   }
 };
 
+// exec command and return stdout as string
 export const execOut = async (
-  cmd,
-  runOpts = {},
-) => {
+  cmd: string,
+  runOpts: Partial<Deno.RunOptions> = {},
+): Promise<string> => {
   const proc = getExecProcess(cmd, { ...runOpts, stdout: "piped" });
   const out = await proc.output();
   await checkAndCloseProcess(proc);
